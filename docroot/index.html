@@ -1,13 +1,273 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Web Server</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWS | Simple Web Server</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1120;
+  --panel: #131d30;
+  --border: #26344d;
+  --text: #edf3ff;
+  --muted: #98a9c4;
+  --blue: #60a5fa;
+  --green: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+}
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 18px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.brand { font-weight: 800; font-size: 21px; letter-spacing: -.5px; }
+.brand span { color: var(--blue); }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #245a4b;
+  background: #102c29;
+  color: var(--green);
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
+main { max-width: 1100px; margin: auto; padding: 44px 22px 64px; }
+.eyebrow {
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: 800;
+}
+h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.15; margin: 12px 0; letter-spacing: -1.5px; }
+h1 span { color: var(--blue); }
+.subtitle { color: var(--muted); max-width: 650px; margin-bottom: 28px; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  min-width: 0;
+}
+.section-title { font-size: 17px; margin: 0 0 5px; }
+.section-desc { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.metric { font-size: 25px; font-weight: 800; margin-top: 8px; }
+.label { color: var(--muted); font-size: 13px; }
+.icon { font-size: 22px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr); gap: 18px; margin-top: 18px; }
+.tests { display: grid; gap: 10px; }
+.test {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 13px; border: 1px solid var(--border); border-radius: 10px;
+  background: #0f1829;
+}
+.test-name { font-weight: 650; font-size: 14px; }
+.test-sub { color: var(--muted); font-size: 12px; }
+.result { font-size: 11px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.result.pass { color: var(--green); }
+.result.fail { color: #f87171; }
+button {
+  background: var(--blue); color: #071326; border: 0; border-radius: 9px;
+  padding: 11px 16px; font-weight: 800; cursor: pointer;
+  font-size: 13px; transition: .15s;
+}
+button:hover { filter: brightness(1.12); transform: translateY(-1px); }
+button:disabled { opacity: .5; cursor: wait; transform: none; }
+.secondary { background: #263750; color: var(--text); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.log {
+  background: #080e19; border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; min-height: 170px; max-height: 300px; overflow: auto;
+  font: 12px/1.8 ui-monospace, SFMono-Regular, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.log-line { color: var(--muted); }
+.log-line.ok { color: var(--green); }
+.log-line.err { color: #f87171; }
+.features { display: grid; gap: 13px; margin-top: 18px; }
+.feature { display: flex; gap: 12px; align-items: flex-start; }
+.feature-icon { background: #1c2c45; padding: 8px; border-radius: 9px; }
+.feature strong { display: block; font-size: 14px; }
+.feature small { color: var(--muted); }
+footer { border-top: 1px solid var(--border); padding: 20px; text-align: center; color: var(--muted); font-size: 12px; }
+@media(max-width:760px) {
+  .grid { grid-template-columns: 1fr; }
+  .layout { grid-template-columns: 1fr; }
+  main { padding-top: 30px; }
+}
+</style>
 </head>
 <body>
-    <h1>Simple Web Server</h1>
-    <p>The web server is running successfully.</p>
-    <p><a href="/about.html">About</a></p>
+<header>
+  <div class="brand">SWS<span>.</span> <span style="color:#98a9c4;font-weight:500">Simple Web Server</span></div>
+  <div class="badge"><span class="dot"></span> WEB INTERFACE ACTIVE</div>
+</header>
+
+<main>
+  <div class="eyebrow">C project · HTTP server</div>
+  <h1>Your server.<br><span>Your control panel.</span></h1>
+  <p class="subtitle">
+    Giao diện giám sát và kiểm thử cho web server viết bằng C.
+    Kiểm tra các phương thức HTTP, phục vụ file tĩnh và CGI trực tiếp trên trình duyệt.
+  </p>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="icon">◈</div>
+      <div class="label">Server address</div>
+      <div class="metric" style="font-size:20px">127.0.0.1:8080</div>
+      <div class="label">Local development</div>
+    </div>
+    <div class="panel">
+      <div class="icon">↔</div>
+      <div class="label">HTTP methods</div>
+      <div class="metric">GET · HEAD</div>
+      <div class="label">POST được xử lý với 405</div>
+    </div>
+    <div class="panel">
+      <div class="icon">✓</div>
+      <div class="label">Browser test suite</div>
+      <div class="metric" id="summary">0 / 5</div>
+      <div class="label" id="summary-label">Chưa chạy kiểm thử</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <h2 class="section-title">HTTP diagnostics</h2>
+      <p class="section-desc">Chạy các request thực tế tới server đang hoạt động.</p>
+      <div class="tests">
+        <div class="test"><div><div class="test-name">GET /</div><div class="test-sub">Tải trang HTML</div></div><span id="r-get" class="result">WAITING</span></div>
+        <div class="test"><div><div class="test-name">HEAD /</div><div class="test-sub">Chỉ nhận response headers</div></div><span id="r-head" class="result">WAITING</span></div>
+        <div class="test"><div><div class="test-name">404 Not Found</div><div class="test-sub">Yêu cầu file không tồn tại</div></div><span id="r-404" class="result">WAITING</span></div>
+        <div class="test"><div><div class="test-name">405 Method Not Allowed</div><div class="test-sub">Gửi request POST</div></div><span id="r-405" class="result">WAITING</span></div>
+        <div class="test"><div><div class="test-name">CGI execution</div><div class="test-sub">Chạy script hello.sh</div></div><span id="r-cgi" class="result">WAITING</span></div>
+      </div>
+      <div class="actions">
+        <button id="run" onclick="runTests()">▶ Run all tests</button>
+        <button class="secondary" onclick="clearLog()">Clear log</button>
+      </div>
+    </section>
+
+    <aside>
+      <section class="panel">
+        <h2 class="section-title">Activity log</h2>
+        <p class="section-desc">Kết quả request được hiển thị tại đây.</p>
+        <div class="log" id="log" aria-live="polite">
+          <div class="log-line">[SWS] Dashboard initialized.</div>
+          <div class="log-line">[INFO] Ready to run browser tests.</div>
+        </div>
+      </section>
+      <section class="panel" style="margin-top:18px">
+        <h2 class="section-title">Server capabilities</h2>
+        <div class="features">
+          <div class="feature"><span class="feature-icon">📄</span><div><strong>Static file serving</strong><small>HTML, CSS, JavaScript và các file hỗ trợ.</small></div></div>
+          <div class="feature"><span class="feature-icon">🛡️</span><div><strong>Path validation</strong><small>Chặn truy cập vượt khỏi document root.</small></div></div>
+          <div class="feature"><span class="feature-icon">⚙️</span><div><strong>CGI scripts</strong><small>Thực thi script trong thư mục cgi-bin.</small></div></div>
+          <div class="feature"><span class="feature-icon">🕒</span><div><strong>Conditional requests</strong><small>Hỗ trợ kiểm tra If-Modified-Since.</small></div></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>Simple Web Server · C · Socket Programming · HTTP</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+let passed = 0, completed = 0;
+
+function log(message, type = '') {
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + message;
+  $('log').appendChild(line);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function clearLog() {
+  $('log').replaceChildren();
+  log('Log cleared.');
+}
+function result(id, ok, message) {
+  const el = $('r-' + id);
+  el.textContent = ok ? 'PASS' : 'FAIL';
+  el.className = 'result ' + (ok ? 'pass' : 'fail');
+  completed++;
+  if (ok) passed++;
+  log((ok ? 'PASS ' : 'FAIL ') + message, ok ? 'ok' : 'err');
+  $('summary').textContent = passed + ' / ' + completed;
+  $('summary-label').textContent = completed === 5
+    ? (passed === 5 ? 'All browser tests passed' : 'Some tests failed')
+    : 'Đang kiểm thử...';
+}
+async function runTests() {
+  const button = $('run');
+  button.disabled = true;
+  button.textContent = 'Running...';
+  passed = 0; completed = 0;
+  $('summary').textContent = '0 / 5';
+  $('summary-label').textContent = 'Đang kiểm thử...';
+  ['get','head','404','405','cgi'].forEach(id => {
+    $('r-' + id).textContent = 'RUNNING';
+    $('r-' + id).className = 'result';
+  });
+  log('Starting browser test suite...');
+  const checks = [
+    ['get', 'GET /', async () => {
+      const r = await fetch('/', {cache:'no-store'});
+      const body = await r.text();
+      return r.status === 200 && body.toLowerCase().includes('<html');
+    }],
+    ['head', 'HEAD /', async () => {
+      const r = await fetch('/', {method:'HEAD', cache:'no-store'});
+      return r.status === 200;
+    }],
+    ['404', 'GET missing file', async () => {
+      const r = await fetch('/sws-test-file-that-does-not-exist');
+      return r.status === 404;
+    }],
+    ['405', 'POST /', async () => {
+      const r = await fetch('/', {method:'POST'});
+      return r.status === 405;
+    }],
+    ['cgi', 'CGI GET', async () => {
+      const r = await fetch('/cgi-bin/hello.sh', {cache:'no-store'});
+      const body = await r.text();
+      return r.status === 200 && body.trim().length > 0;
+    }]
+  ];
+  for (const [id, name, check] of checks) {
+    try {
+      const ok = await check();
+      result(id, ok, name + (ok ? ' succeeded' : ' returned unexpected result'));
+    } catch (e) {
+      result(id, false, name + ': ' + e.message);
+    }
+  }
+  $('summary-label').textContent = passed === 5
+    ? 'All browser tests passed'
+    : passed + ' passed, ' + (5 - passed) + ' failed';
+  log('Test suite finished: ' + passed + '/5 passed.', passed === 5 ? 'ok' : 'err');
+  button.disabled = false;
+  button.textContent = '↻ Run tests again';
+}
+</script>
 </body>
 </html>
